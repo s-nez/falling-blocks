@@ -3,6 +3,7 @@ from time import sleep
 import curses
 from block import Block
 from time import time
+from random import randint
 
 STEP_TIME = 0.5
 
@@ -37,7 +38,8 @@ win.box()
 stdscr.refresh()
 win.refresh()
 
-block = Block(win, 2, [1, 10], SHAPES[0])
+shape_index = randint(0, len(SHAPES) - 1)
+block = Block(win, shape_index + 1, [1, 10], SHAPES[shape_index])
 block.show()
 
 quit = False
@@ -55,6 +57,11 @@ while not quit:
         block.move_left()
     elif c == ord('d'):
         block.move_right()
+
+    if block.landed():
+        shape_index = randint(0, len(SHAPES) - 1)
+        block = Block(win, shape_index + 1, [1, 10], SHAPES[shape_index])
+        block.show()
 
 
 # Disable the curses-friendly terminal settings and close the window

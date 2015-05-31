@@ -7,7 +7,7 @@ class Block(object):
         self.width = len(self.body)
         self.height = len(self.body[0])
 
-        self.position = pos
+        self.position = [1, 10] # TODO: adapt to board size
         self.display = display
         self.color = color
 
@@ -55,3 +55,7 @@ class Block(object):
     def move_down(self):
         y, x = self.position
         self.move(y + 1, x)
+
+    def landed(self):
+        max_y = self.display.getbegyx()[0] + self.display.getmaxyx()[0]
+        return self.position[0] + self.height == max_y - 1
