@@ -37,24 +37,24 @@ win.box()
 stdscr.refresh()
 win.refresh()
 
-square.move(1, 1)
-square.show();
+block = Block(win, 2, [1, 10], SHAPES[0])
+block.show()
 
 quit = False
 last_game_step = time()
 while not quit:
     current_time = time()
     if current_time - last_game_step > STEP_TIME:
-        square.move_down()
+        block.move_down()
         last_game_step = current_time
 
     c = stdscr.getch()
     if c == ord('q'):
         quit = True
     elif c == ord('a'):
-        square.move_left()
+        block.move_left()
     elif c == ord('d'):
-        square.move_right()
+        block.move_right()
 
 
 # Disable the curses-friendly terminal settings and close the window
