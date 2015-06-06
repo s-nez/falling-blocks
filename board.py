@@ -2,7 +2,7 @@ import curses
 from random import randint
 from copy import deepcopy
 
-def gen_2d_array(height, width, default = 0):
+def gen_2d_array(height, width, default=0):
     """
     Generate a list of lists with the specified size,
     optionally filled with a value other than 0
@@ -12,6 +12,10 @@ def gen_2d_array(height, width, default = 0):
     for i in xrange(width):
         arr.append(deepcopy(col))
     return arr
+
+def reverse_range(start):
+    """Generate a descending sequence of numbers from (start - 1) to 0"""
+    return xrange(start - 1, -1, -1)
 
 def curses_draw_spot(win, y, x, color):
     """Draw a single-colored rectangle on the curses display"""
@@ -34,12 +38,12 @@ class Board(object):
         self.height = height
 
         self.SHAPES = [
-            [ [1, 1, 1], [0, 0, 1]   ],
-            [ [0, 1], [1, 1], [0, 1] ],
-            [ [1, 1], [1, 1]         ],
-            [ [0, 0, 1], [1, 1, 1]   ],
-            [ [1, 1, 1, 1]           ],
-            [ [1, 1, 0], [0, 1, 1]   ]
+            [[1, 1, 1], [0, 0, 1]],
+            [[0, 1], [1, 1], [0, 1]],
+            [[1, 1], [1, 1]],
+            [[0, 0, 1], [1, 1, 1]],
+            [[1, 1, 1, 1]],
+            [[1, 1, 0], [0, 1, 1]]
         ]
 
         self.active_block = self.spawn_block()
@@ -57,11 +61,11 @@ class Board(object):
         spawn_x = self.start_x + (self.width / 2)
         block = Block(self.random_shape(), 1, spawn_y, spawn_x)
         return block
-    
+
     def out_of_bounds(self, y, x):
         """Check if the given location is outside the game board"""
-        min_y, max_y = self.start_y , self.start_y + self.height - 1
-        min_x, max_x = self.start_x , self.start_x + self.width - 1
+        (min_y, max_y) = (self.start_y, self.start_y + self.height - 1)
+        (min_x, max_x) = (self.start_x, self.start_x + self.width - 1)
         return y <= min_y or y >= max_y or x <= min_x or x >= max_x
 
     def block_movable(self, y, x):
@@ -106,6 +110,15 @@ class Board(object):
         while self.advance_block():
             pass # wat
 
+    def rotate_block(self):
+        """Rotate the active block 90 degrees right"""
+        y, x = self.active_block.position
+        rotation = self.active_block.gen_rotation()
+        for ny, nx in self.active_block.gen_coords(y, x, shape=rotation):
+            if self.out_of_bounds(ny, nx) or self.heap.collision(ny, nx):
+                return
+        self.active_block.rotate(rot=rotation)
+
     def draw_active_block(self):
         """Draw the active block on the curses display."""
         color = self.active_block.color
@@ -145,10 +158,30 @@ class Heap(object):
         y, x = self.adj_coords(y, x)
         return self.remnants[x][y] != 0
 
+    def line_full(self, line_index):
+        for column in self.remnants:
+            if column[line_index] == 0:
+                return False
+        return True
+
+    def remove_full_lines(self):
+        lines_to_remove = set()
+        for index in xrange(len(self.remnants[0])):
+            if self.line_full(index):
+                lines_to_remove.add(index)
+
+        col_index = len(self.remnants[0]) - 1
+        for index in reverse_range(len(self.remnants[0])):
+            if not index in lines_to_remove:
+                for column in self.remnants:
+                    column[col_index] = column[index]
+                col_index -= 1
+
     def add(self, block):
         """Add the given block to the heap of remnants."""
         for y, x in block.coords():
             self.remnants[x - self.start_x][y - self.start_y] = block.color
+        self.remove_full_lines()
 
     def contents(self):
         """
@@ -177,13 +210,32 @@ class Block(object):
         """Return a list of coordinates of block elements."""
         return self.gen_coords(*self.position)
 
-    def gen_coords(self, y, x):
+    def gen_coords(self, y, x, shape=None):
         """
         Generate a list of coordinates of block elements,
         assuming the block is located at the given position.
         """
-        for x_offset, column in enumerate(self.shape):
+        if shape == None:
+            shape = self.shape
+
+        for x_offset, column in enumerate(shape):
             for y_offset, spot in enumerate(column):
                 if spot == 1:
                     yield [y + y_offset, x + x_offset]
         return
+
+    def rotate(self, rot=None):
+        """Rotate the block 90 degrees right"""
+        if rot==None:
+            rot = self.gen_rotation()
+        self.shape = self.gen_rotation()
+
+    def gen_rotation(self):
+        """Generate a rotated shape for the block."""
+        new_shape = []
+        for index in reverse_range(len(self.shape[0])):
+            new_column = []
+            for column in self.shape:
+                new_column.append(column[index])
+            new_shape.append(new_column)
+        return new_shape

@@ -43,6 +43,8 @@ try:
             game_board.rshift_block()
         elif c == ord('s'):
             game_board.land_block()
+        elif c == ord('w'):
+            game_board.rotate_block()
 
         game_board.draw()
 
