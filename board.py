@@ -79,7 +79,7 @@ class Board(Updatable):
 
         y, x = self.active_block.position
         if not self.block_movable(y + 1, x):
-            self.over = True
+            self.status.over = True
 
     def advance_block(self):
         """
