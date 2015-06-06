@@ -1,27 +1,10 @@
 import curses
-from random import randint
-from copy import deepcopy
+from random import randint, uniform
+from scoreboard import GameStatus
+from misc import gen_2d_array, reverse_range, curses_draw_spot
+from interfaces import Updatable
 
-def gen_2d_array(height, width, default=0):
-    """
-    Generate a list of lists with the specified size,
-    optionally filled with a value other than 0
-    """
-    col = [default] * height
-    arr = []
-    for i in xrange(width):
-        arr.append(deepcopy(col))
-    return arr
-
-def reverse_range(start):
-    """Generate a descending sequence of numbers from (start - 1) to 0"""
-    return xrange(start - 1, -1, -1)
-
-def curses_draw_spot(win, y, x, color):
-    """Draw a single-colored rectangle on the curses display"""
-    win.addstr(y, x, ' ', curses.color_pair(color))
-
-class Board(object):
+class Board(Updatable):
     """
     The game board. The central object which controls spawning
     and movement of blocks as well as the heap of block remnants.
@@ -36,6 +19,8 @@ class Board(object):
         self.start_x = start_x
         self.width = width
         self.height = height
+
+        self.status = GameStatus()
 
         self.SHAPES = [
             [[1, 1, 1], [0, 0, 1]],
@@ -55,11 +40,18 @@ class Board(object):
         shape_index = randint(0, len(self.SHAPES) - 1)
         return self.SHAPES[shape_index]
 
+    def random_color(self):
+        """Pick a color, which describes the block type, at random."""
+        if uniform(0, 1) < 0.6: # 60% chance for a regular block
+            return 1
+        else:
+            return randint(2, 7)
+
     def spawn_block(self):
         """Create and return a new bock with random shape."""
         spawn_y = self.start_y + 1
         spawn_x = self.start_x + (self.width / 2)
-        block = Block(self.random_shape(), 1, spawn_y, spawn_x)
+        block = Block(self.random_shape(), self.random_color(), spawn_y, spawn_x)
         return block
 
     def out_of_bounds(self, y, x):
@@ -78,6 +70,13 @@ class Board(object):
                 return False
         return True
 
+    def update_game_status(self):
+        self.status.add_score(self.heap.get_removed())
+
+        y, x = self.active_block.position
+        if not self.block_movable(y + 1, x):
+            self.over = True
+
     def advance_block(self):
         """
         Move the active block block one square down. If the block cannot be
@@ -91,6 +90,7 @@ class Board(object):
 
         self.heap.add(self.active_block)
         self.active_block = self.spawn_block()
+        self.update_game_status()
         return False
 
     def lshift_block(self):
@@ -136,6 +136,12 @@ class Board(object):
         self.draw_active_block()
         self.win.refresh()
 
+    def update(self):
+        self.draw()
+
+    def game_over(self):
+        return self.status.over
+
 
 class Heap(object):
     """Heap of block remnants."""
@@ -145,6 +151,7 @@ class Heap(object):
         self.start_x = start_x
         self.width = width
         self.height = height
+        self.removed = 0
 
     def adj_coords(self, y, x):
         """Adjust the coordinates to fit into the remnants 2d list."""
@@ -176,12 +183,13 @@ class Heap(object):
                 for column in self.remnants:
                     column[col_index] = column[index]
                 col_index -= 1
+        self.removed += len(lines_to_remove)
 
     def add(self, block):
         """Add the given block to the heap of remnants."""
         for y, x in block.coords():
             self.remnants[x - self.start_x][y - self.start_y] = block.color
-        self.remove_full_lines()
+        return self.remove_full_lines()
 
     def contents(self):
         """
@@ -194,6 +202,10 @@ class Heap(object):
                 yield [y + y_offset, x + x_offset, color]
         return
 
+    def get_removed(self):
+        result = self.removed
+        self.removed = 0
+        return result
 
 class Block(object):
     """A moving game block."""
