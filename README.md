@@ -5,9 +5,10 @@ A game about blocks falling all over the place
 * curses
 
 ## How to play
-Start the game (trust me, it works):
+Start the game:
 ```
-perl game.py
+python game.py
 ```
 
-Move the currently falling block sideways with A and D, stop the game with Q. That's all for now, the game is nowhere near feature-completeness.
+Move the currently falling block sideways with A and D, rotate with W,
+drop the block with S. Press Q to quit the game.
