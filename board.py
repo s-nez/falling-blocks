@@ -42,7 +42,7 @@ class Board(Updatable):
 
     def random_color(self):
         """Pick a color, which describes the block type, at random."""
-        if uniform(0, 1) < 0.6: # 60% chance for a regular block
+        if uniform(0, 1) < 0.7: # 70% chance for a regular block
             return 1
         else:
             return randint(2, 7)
@@ -66,7 +66,11 @@ class Board(Updatable):
         the specified location.
         """
         for ny, nx in self.active_block.gen_coords(y, x):
-            if self.out_of_bounds(ny, nx) or self.heap.collision(ny, nx):
+            if self.out_of_bounds(ny, nx):
+                return False
+
+            # Blue 'ghost' block moves through the heap
+            if self.active_block.color != 3 and self.heap.collision(ny, nx):
                 return False
         return True
 
@@ -155,7 +159,7 @@ class Heap(object):
 
     def adj_coords(self, y, x):
         """Adjust the coordinates to fit into the remnants 2d list."""
-        return [y - 1, x - 1]
+        return [y - self.start_y, x - self.start_x]
 
     def collision(self, y, x):
         """
@@ -184,11 +188,39 @@ class Heap(object):
                     column[col_index] = column[index]
                 col_index -= 1
         self.removed += len(lines_to_remove)
+    
+    def in_heap(self, y, x):
+        if y < 0 or y >= len(self.remnants):
+            return False
+        if x < 0 or x >= len(self.remnants[0]):
+            return False
+        return True
+
+    def empty_spot(self, y, x):
+        return self.in_heap(y, x) and self.remnants[x][y] == 0
 
     def add(self, block):
         """Add the given block to the heap of remnants."""
         for y, x in block.coords():
-            self.remnants[x - self.start_x][y - self.start_y] = block.color
+            y, x = self.adj_coords(y, x)
+            self.remnants[x][y] = block.color
+        if block.color == 2:
+            # Green 'growing' block
+            for y, x in block.coords():
+                y, x = self.adj_coords(y, x)
+                for grow_x in [x - 1, x + 1]:
+                    for grow_y in [y, y + 1]:
+                        if self.empty_spot(grow_y, grow_x):
+                            self.remnants[grow_x][grow_y] = block.color
+        elif block.color == 7:
+            # Red 'exploding' block
+            for y, x in block.coords():
+                y, x = self.adj_coords(y, x)
+                for destroy_x in [x - 1, x, x + 1]:
+                    for destroy_y in [y - 1, y, y + 1]:
+                        if self.in_heap(destroy_y, destroy_x):
+                            self.remnants[destroy_x][destroy_y] = 0
+            
         return self.remove_full_lines()
 
     def contents(self):

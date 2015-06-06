@@ -1,18 +1,19 @@
 #!/usr/bin/python
-from time import sleep
+"""Main game module"""
 import curses
 from time import time
-from random import randint
 from board import Board
 from scoreboard import ScoreBoard
+from keymap import KeyMap
 
 STEP_TIME = 0.5
+CONFIG_FNAME = 'falling_blocks.conf'
 
-stdscr = curses.initscr()
+STDSCR = curses.initscr()
 curses.start_color() # enable color support
 curses.noecho()      # don't display pressed keys
 curses.cbreak()      # don't wait for a newline to process input
-stdscr.keypad(1)     # enable keypad mode (process special keys, like Home)
+STDSCR.keypad(1)     # enable keypad mode (process special keys, like Home)
 curses.curs_set(0)   # make the cursor invisible
 curses.halfdelay(5)  # wait only half a second between each getch
 
@@ -26,41 +27,44 @@ curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_MAGENTA)
 curses.init_pair(7, curses.COLOR_RED, curses.COLOR_RED)
 
 try:
-    game_board = Board(stdscr, 0, 0, 20, 20)
-    score_board = ScoreBoard(game_board.status, 5, 25)
+    keys = KeyMap()
+    keys.load_from_file(CONFIG_FNAME)
 
-    quit = False
-    last_game_step = time()
-    while not quit and not game_board.game_over():
-        current_time = time()
-        if current_time - last_game_step > STEP_TIME:
-            game_board.advance_block()
-            last_game_step = current_time
+    GAME_BOARD = Board(STDSCR, 0, 0, 20, 20)
+    SCORE_BOARD = ScoreBoard(GAME_BOARD.status, 5, 25)
 
-        c = stdscr.getch()
-        if c == ord('q'):
-            quit = True
-        elif c == ord('a'):
-            game_board.lshift_block()
-        elif c == ord('d'):
-            game_board.rshift_block()
-        elif c == ord('s'):
-            game_board.land_block()
-        elif c == ord('w'):
-            game_board.rotate_block()
+    GAME_QUIT = False
+    LAST_GAME_STEP = time()
+    while not GAME_QUIT and not GAME_BOARD.game_over():
+        CURRENT_TIME = time()
+        if CURRENT_TIME - LAST_GAME_STEP > STEP_TIME:
+            GAME_BOARD.advance_block()
+            LAST_GAME_STEP = CURRENT_TIME
 
-        game_board.update()
-        score_board.update()
+        USR_INPUT = STDSCR.getch()
+        if USR_INPUT == keys.quit:
+            GAME_QUIT = True
+        elif USR_INPUT == keys.lshift:
+            GAME_BOARD.lshift_block()
+        elif USR_INPUT == keys.rshift:
+            GAME_BOARD.rshift_block()
+        elif USR_INPUT == keys.land:
+            GAME_BOARD.land_block()
+        elif USR_INPUT == keys.rotate:
+            GAME_BOARD.rotate_block()
 
-    if game_board.game_over():
-        stdscr.addstr(10, 5, 'GAME OVER')
-        c = stdscr.getch()
-        while c != ord('q'):
-            c = stdscr.getch()
+        GAME_BOARD.update()
+        SCORE_BOARD.update()
+
+    if GAME_BOARD.game_over():
+        STDSCR.addstr(10, 5, 'GAME OVER')
+        USR_INPUT = STDSCR.getch()
+        while USR_INPUT != keys.quit:
+            USR_INPUT = STDSCR.getch()
 
 finally:
     # Disable the curses-friendly terminal settings and close the window
     curses.nocbreak()
-    stdscr.keypad(0)
+    STDSCR.keypad(0)
     curses.echo()
     curses.endwin()

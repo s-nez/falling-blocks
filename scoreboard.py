@@ -21,8 +21,8 @@ class GameStatus(object):
         if lines == 0:
             self.score_mod = self.score_mod_default
         else:
-            self.score_mod += 10 * lines
             self.score += lines * self.score_mod
+            self.score_mod += 10 * lines
 
     def game_speed(self):
         """
