@@ -11,9 +11,9 @@ CONFIG_FNAME = 'falling_blocks.conf'
 
 STDSCR = curses.initscr()
 curses.start_color() # enable color support
-curses.noecho()      # don't display pressed keys
+curses.noecho()      # don't display pressed KEYS
 curses.cbreak()      # don't wait for a newline to process input
-STDSCR.keypad(1)     # enable keypad mode (process special keys, like Home)
+STDSCR.keypad(1)     # enable keypad mode (process special KEYS, like Home)
 curses.curs_set(0)   # make the cursor invisible
 curses.halfdelay(5)  # wait only half a second between each getch
 
@@ -27,10 +27,10 @@ curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_MAGENTA)
 curses.init_pair(7, curses.COLOR_RED, curses.COLOR_RED)
 
 try:
-    keys = KeyMap()
-    keys.load_from_file(CONFIG_FNAME)
+    KEYS = KeyMap()
+    KEYS.load_from_file(CONFIG_FNAME)
 
-    GAME_BOARD = Board(STDSCR, 0, 0, 20, 20)
+    GAME_BOARD = Board(STDSCR, [0, 0], [20, 20])
     SCORE_BOARD = ScoreBoard(GAME_BOARD.status, 5, 25)
 
     GAME_QUIT = False
@@ -42,24 +42,24 @@ try:
             LAST_GAME_STEP = CURRENT_TIME
 
         USR_INPUT = STDSCR.getch()
-        if USR_INPUT == keys.quit:
+        if USR_INPUT == KEYS.quit:
             GAME_QUIT = True
-        elif USR_INPUT == keys.lshift:
+        elif USR_INPUT == KEYS.lshift:
             GAME_BOARD.lshift_block()
-        elif USR_INPUT == keys.rshift:
+        elif USR_INPUT == KEYS.rshift:
             GAME_BOARD.rshift_block()
-        elif USR_INPUT == keys.land:
+        elif USR_INPUT == KEYS.land:
             GAME_BOARD.land_block()
-        elif USR_INPUT == keys.rotate:
+        elif USR_INPUT == KEYS.rotate:
             GAME_BOARD.rotate_block()
 
-        GAME_BOARD.update()
-        SCORE_BOARD.update()
+        GAME_BOARD.draw()
+        SCORE_BOARD.draw()
 
     if GAME_BOARD.game_over():
         STDSCR.addstr(10, 5, 'GAME OVER')
         USR_INPUT = STDSCR.getch()
-        while USR_INPUT != keys.quit:
+        while USR_INPUT != KEYS.quit:
             USR_INPUT = STDSCR.getch()
 
 finally:

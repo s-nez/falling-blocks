@@ -3,7 +3,6 @@ Scoreboard curses window and a shared object
 for connection with the game board.
 """
 import curses
-from interfaces import Updatable
 
 class GameStatus(object):
     """The game status, handles adding score and adjusting the multiplier."""
@@ -30,7 +29,7 @@ class GameStatus(object):
         """
         pass
 
-class ScoreBoard(Updatable):
+class ScoreBoard(object):
     """
     The score board, displays data from
     a GameStatus object as a curses window
@@ -40,13 +39,10 @@ class ScoreBoard(Updatable):
         self.status = status
         self.win.addstr(0, 0, 'SCORE')
         self.win.addstr(4, 0, 'Multiplier: ')
-        self.update_score()
+        self.draw()
 
-    def update_score(self):
+    def draw(self):
         """Display the score on the curses display"""
         self.win.addstr(1, 0, str(self.status.score))
         self.win.addstr(4, 13, str(float(self.status.score_mod) / 100) + 'x')
         self.win.refresh()
-
-    def update(self):
-        self.update_score()

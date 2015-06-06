@@ -1,9 +1,14 @@
 """Keyboard bindings and config loading"""
-from os.path import isfile 
-
 class KeyMap(object):
+    """
+    This class stores the game keybindings and handles loading the config file.
+    """
     def __init__(self):
-        self.set_default()
+        self.quit = ord('q')
+        self.lshift = ord('a')
+        self.rshift = ord('d')
+        self.land = ord('s')
+        self.rotate = ord('w')
 
     def set_default(self):
         """Set all values to default"""
@@ -17,8 +22,8 @@ class KeyMap(object):
         """Load keybindings from a file"""
         try:
             opts = {}
-            with open(fname, 'r') as f:
-                for line in f:
+            with open(fname, 'r') as fhandle:
+                for line in fhandle:
                     line = line.rstrip()
                     action, key = line.split('=')
                     opts[action] = key
