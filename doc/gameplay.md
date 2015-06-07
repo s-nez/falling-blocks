@@ -30,4 +30,4 @@ with other blocks, only with the board boundary.
 
 ### Yellow blocks
 If a cleared line contains any yellow blocks, it counts as two lines.
-Spread these blocks across multiple lines to maximize your score.
+Spread those blocks across multiple lines to maximize your score.
