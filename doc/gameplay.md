@@ -22,7 +22,7 @@ up difficult structures or places with too many blocks.
 
 ### Green blocks
 Green blocks grow upon landing. When you place a green block on the board,
-it will any adjacent empty spaces to the sides and downwards.
+it will fill any adjacent empty spaces to the sides and downwards.
 
 ### Blue blocks
 Blue blocks pass through other blocks when falling, i.e. they don't collide
