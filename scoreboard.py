@@ -17,8 +17,8 @@ class GameStatus(object):
         Increase the score according to the number of lines specified
         and adjust the score multiplier
         """
-        if lines == 0:
-            self.score_mod = self.score_mod_default
+        if lines == 0 and self.score_mod > self.score_mod_default:
+            self.score_mod -= 10
         else:
             self.score += lines * self.score_mod
             self.score_mod += 10 * lines
