@@ -3,7 +3,7 @@
 Place the falling blocks on the board, when a line is filled, it disappears.
 Each time you clear a line, you earn points. The game goes on until
 a newly appearing block has no way to move down (the board is filled in the
-middle).
+middle). As you progress, the game will gradually speed up.
 
 ## The score multiplier
 Normally, clearing a single line earns you 100 points. Each time you clear

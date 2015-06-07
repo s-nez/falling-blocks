@@ -27,7 +27,11 @@ class GameStatus(object):
         """
         Calculates how fast the game should be, given the current score.
         """
-        pass
+        inc = int(self.score/1000)
+        if inc > 5:
+            return 1
+        else:
+            return 5 - inc
 
 class ScoreBoard(object):
     """

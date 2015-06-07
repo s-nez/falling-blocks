@@ -146,6 +146,9 @@ class Board(object):
         """Return the game status, True if game should end, False otherwise."""
         return self.status.over
 
+    def game_speed(self):
+        """Return the game step time in ms"""
+        return self.status.game_speed()
 
 class Heap(object):
     """Heap of block remnants."""

@@ -56,6 +56,11 @@ try:
         GAME_BOARD.draw()
         SCORE_BOARD.draw()
 
+        # Update game SPEED
+        SPEED = GAME_BOARD.game_speed()
+        STEP_TIME = float(SPEED) / 10
+        curses.halfdelay(SPEED)
+
     if GAME_BOARD.game_over():
         STDSCR.addstr(10, 5, 'GAME OVER')
         USR_INPUT = STDSCR.getch()
