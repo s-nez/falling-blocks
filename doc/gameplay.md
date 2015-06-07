@@ -29,7 +29,8 @@ Blue blocks pass through other blocks when falling, i.e. they don't collide
 with other blocks, only with the board boundary.
 
 ### Yellow blocks
-Unimplemented.
+If a cleared line contains any yellow blocks, it counts as two lines.
+Spread these blocks across multiple lines to maximize your score.
 
 ### Cyan blocks
 Unimplemented.

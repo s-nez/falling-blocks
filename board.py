@@ -183,13 +183,19 @@ class Heap(object):
             if self.line_full(index):
                 lines_to_remove.add(index)
 
+        yellow_blocks = 0
         col_index = len(self.remnants[0]) - 1
         for index in reverse_range(len(self.remnants[0])):
             if not index in lines_to_remove:
                 for column in self.remnants:
                     column[col_index] = column[index]
                 col_index -= 1
-        self.removed += len(lines_to_remove)
+            else: # Lines with yellow blocks count double
+                for column in self.remnants:
+                    if column[index] == 5:
+                        yellow_blocks += 1
+                        break
+        self.removed += len(lines_to_remove) + yellow_blocks
 
     def in_heap(self, coord_y, coord_x):
         """
