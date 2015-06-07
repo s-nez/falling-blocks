@@ -51,4 +51,4 @@ def random_color():
     if uniform(0, 1) < 0.7: # 70% chance for a regular block
         return 1
     else:
-        return randint(2, 7)
+        return randint(2, 5)

@@ -195,7 +195,7 @@ class Heap(object):
                 col_index -= 1
             else: # Lines with yellow blocks count double
                 for column in self.remnants:
-                    if column[index] == 5:
+                    if column[index] == 4:
                         yellow_blocks += 1
                         break
         self.removed += len(lines_to_remove) + yellow_blocks
@@ -231,7 +231,7 @@ class Heap(object):
                     for grow_y in [coord_y, coord_y + 1]:
                         if self.empty_spot(grow_y, grow_x):
                             self.remnants[grow_x][grow_y] = block.color
-        elif block.color == 7:
+        elif block.color == 5:
             # Red 'exploding' block
             for coord_y, coord_x in block.coords():
                 coord_y, coord_x = self.adj_coords(coord_y, coord_x)
