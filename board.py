@@ -121,7 +121,8 @@ class Board(object):
         for new_y, new_x in \
                 self.active_block.gen_coords(coord_y, coord_x, shape=rotation):
             if self.out_of_bounds(new_y, new_x) or \
-                    self.heap.collision(new_y, new_x):
+                    (self.active_block.color != 3 and \
+                    self.heap.collision(new_y, new_x)):
                 return
         self.active_block.rotate(rot=rotation)
 
